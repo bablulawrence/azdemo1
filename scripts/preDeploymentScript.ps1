@@ -78,7 +78,13 @@ $tenantId = (Get-AzContext).Tenant.Id
 $subscriptionId = (Get-AzContext).Subscription.Id
 $principalId = getUserPrincipalId
 $suffix = -join ((48..57) + (97..122) | Get-Random -Count 5 | ForEach-Object { [char]$_ })
-$location = selectLocation
+$location = 'WestUS'
+#https://raw.githubusercontent.com/bablulawrence/azdemo1/main/scripts/preDeploymentScript.ps1
+$templateLink = "https://raw.githubusercontent.com/bablulawrence/azdemo1/main/templates/json/purviewdeploy.json" 
+Write-Host "Tenant Id :${tenantId}"
+Write-Host "Subcription Id :${subscriptionId}"
+Write-Host "Location : ${location}"
+Write-Host "Resource name suffix :${suffix}"
 
 # Create Resource Group
 $resourceGroup = New-AzResourceGroup -Name "azdemo101-rg-${suffix}" -Location $location
@@ -93,7 +99,7 @@ While ($null -eq $accessToken) {
     $accessToken = getAccessToken $tenantId $clientId $clientSecret "https://management.core.windows.net/"
 }
 # Create Azure Purview Account (as Service Principal)
-$templateLink = "https://raw.githubusercontent.com/tayganr/purviewdemo/main/templates/json/purviewdeploy.json" 
+
 $parameters = @{ suffix = @{ value = $suffix } }
 $deployment = deployTemplate $accessToken $templateLink $resourceGroupName $parameters
 $deploymentName = $deployment.name
@@ -111,7 +117,7 @@ While ($provisioningState -ne "Succeeded") {
 }
 
 # Deploy Template
-$templateUri = "https://raw.githubusercontent.com/tayganr/purviewdemo/main/templates/json/azuredeploy.json"
+#$templateUri = "https://raw.githubusercontent.com/tayganr/purviewdemo/main/templates/json/azuredeploy.json"
 $secureSecret = ConvertTo-SecureString -AsPlainText $sp.PasswordCredentials.SecretText
 $job = New-AzResourceGroupDeployment `
     -Name "azDemo101Template-${suffix}" `
