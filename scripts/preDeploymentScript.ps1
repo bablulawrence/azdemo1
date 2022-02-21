@@ -77,7 +77,8 @@ function getDeployment([string]$accessToken, [string]$subscriptionId, [string]$r
 $tenantId = (Get-AzContext).Tenant.Id
 $subscriptionId = (Get-AzContext).Subscription.Id
 $principalId = getUserPrincipalId
-$suffix = -join ((48..57) + (97..122) | Get-Random -Count 5 | ForEach-Object { [char]$_ })
+# $suffix = -join ((48..57) + (97..122) | Get-Random -Count 5 | ForEach-Object { [char]$_ })
+$suffix = 'vuxw2'
 $location = 'WestUS'
 #https://raw.githubusercontent.com/bablulawrence/azdemo1/main/scripts/preDeploymentScript.ps1
 $templateLink = "https://raw.githubusercontent.com/bablulawrence/azdemo1/main/templates/json/purviewdeploy.json" 
@@ -89,6 +90,7 @@ Write-Host "Resource name suffix :${suffix}"
 # Create Resource Group
 $resourceGroup = New-AzResourceGroup -Name "azdemo101-rg-${suffix}" -Location $location
 $resourceGroupName = $resourceGroup.ResourceGroupName
+Write-Host "Resource group name: $resourceGroupName"
 
 # Create Service Principal
 $sp = createServicePrincipal $subscriptionId $resourceGroupName $suffix
