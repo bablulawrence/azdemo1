@@ -21,6 +21,11 @@ function createServicePrincipal([string]$subscriptionId, [string]$resourceGroupN
     Return $sp
 }
 
+function getServicePrincipal([string]$subscriptionId, [string]$resourceGroupName, [string]$suffix) {    
+    $sp = Get-AzADServicePrincipal -DisplayName "azDemo101ServicePrincipal-${suffix}"
+    Return $sp
+}
+
 function getAccessToken([string]$tenantId, [string]$clientId, [string]$clientSecret, [string]$resource) {
     $requestAccessTokenUri = "https://login.microsoftonline.com/${tenantId}/oauth2/token"
     $body = "grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}&resource=${resource}"
@@ -79,7 +84,7 @@ $subscriptionId = (Get-AzContext).Subscription.Id
 $principalId = getUserPrincipalId
 # $suffix = -join ((48..57) + (97..122) | Get-Random -Count 5 | ForEach-Object { [char]$_ })
 $suffix = 'vuxw2'
-$location = 'WestUS'
+$location = 'WestUS2'
 #https://raw.githubusercontent.com/bablulawrence/azdemo1/main/scripts/preDeploymentScript.ps1
 $templateLink = "https://raw.githubusercontent.com/bablulawrence/azdemo1/main/templates/json/purviewdeploy.json" 
 Write-Host "Tenant Id :${tenantId}"
@@ -89,11 +94,13 @@ Write-Host "Resource name suffix :${suffix}"
 
 # Create Resource Group
 $resourceGroup = New-AzResourceGroup -Name "azdemo101-rg-${suffix}" -Location $location
+# $resourceGroup = Get-AzResourceGroup -Name "azdemo101-rg-${suffix}" -Location $location
 $resourceGroupName = $resourceGroup.ResourceGroupName
 Write-Host "Resource group name: $resourceGroupName"
 
 # Create Service Principal
 $sp = createServicePrincipal $subscriptionId $resourceGroupName $suffix
+# $sp = getServicePrincipal $subscriptionId $resourceGroupName $suffix
 $clientId = $sp.AppId
 $clientSecret = $sp.PasswordCredentials.SecretText
 $accessToken = $null
@@ -119,7 +126,7 @@ While ($provisioningState -ne "Succeeded") {
 }
 
 # Deploy Template
-#$templateUri = "https://raw.githubusercontent.com/tayganr/purviewdemo/main/templates/json/azuredeploy.json"
+$templateUri = "https://raw.githubusercontent.com/bablulawrence/azdemo1/main/templates/json/azuredeploy.json"
 $secureSecret = ConvertTo-SecureString -AsPlainText $sp.PasswordCredentials.SecretText
 $job = New-AzResourceGroupDeployment `
     -Name "azDemo101Template-${suffix}" `
