@@ -33,6 +33,7 @@ function getToken([string]$tenant_id, [string]$client_id, [string]$client_secret
         "client_secret" = $client_secret
         "resource" = "https://purview.azure.net"
     }
+    
     $params = @{
         ContentType = "application/x-www-form-urlencoded"
         Headers = @{"accept"="application/json"}
